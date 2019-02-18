@@ -1,15 +1,20 @@
 
 
 import re
-from tensor2tensor.bin import t2t_trainer
 from tensor2tensor.data_generators import problem
 from tensor2tensor.data_generators import text_problems
+
 from tensor2tensor.utils import registry
+
 import os,sys
 @registry.register_problem
 class MyReaction(text_problems.Text2TextProblem):
   #Predict next line of poetry from the last line. From Gutenberg texts.
 
+
+  @property
+  def vocab_type(self):
+      return text_problems.VocabType.CHARACTER
 
   @property
   def approx_vocab_size(self):
