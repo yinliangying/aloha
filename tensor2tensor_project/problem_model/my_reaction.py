@@ -1,6 +1,7 @@
 
 
 import re
+import json
 from tensor2tensor.data_generators import problem
 from tensor2tensor.data_generators import text_problems
 
@@ -44,13 +45,11 @@ class MyReaction(text_problems.Text2TextProblem):
 
     script_dir=os.path.split(os.path.realpath(__file__))[0]
     data_dir=script_dir+"/../../data/"
-    fp_train_sources=open(data_dir+"/train_sources")
-    fp_train_targets= open(data_dir + "/train_targets")
+    fp_train_sample=open(data_dir+"/train_sample")
 
-    for line in fp_train_sources:
-        input_line=line
-        targets_line=fp_train_targets.readline()
+    for line in fp_train_sample:
+        sample_dict=json.loads(line)
         yield {
-          "inputs": input_line,
-          "targets": targets_line,
+          "inputs": sample_dict["inputs"],
+          "targets": sample_dict["targets"],
         }

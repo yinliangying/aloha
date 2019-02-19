@@ -3,6 +3,7 @@
 from __future__ import print_function
 import os
 import re
+import json
 import traceback
 import sys
 import pickle, gzip
@@ -16,40 +17,62 @@ def cano(smiles): # canonicalize smiles by MolToSmiles function
 
 
 fp_train=open("train.txt")
-fp_train_sources=open("train_sources","w")
-fp_train_targets=open("train_targets","w")
-fp_trst=open("test.txt")
-fp_test_sources=open("test_sources","w")
-fp_test_targets=open("test_targets","w")
-fp_vocab=open("vocab","w")
-length_list=[]
-vocab= {}
+fp_train_sample=open("train_sample","w")
+fp_test=open("test.txt")
+fp_test_sample=open("test_sample","w")
+fp_test_id=open("test_id","w")
+#fp_vocab=open("vocab","w")
+#vocab= {}
 
 
+#id,reactants>reagents>production
 fp_train.readline()
-for  line in fp_train :
+for line in fp_train :
     if " |" in line:
         tmp_fields=line.strip().split(" |")
         line=tmp_fields[0]
     fields=line.strip().split(",")
-    id=fields[0]
+    sample_id=fields[0]
     rxn_str=fields[1]
-    #"""
     try:
         rxn = AllChem.ReactionFromSmarts(rxn_str, useSmiles=True)
     except:
         print(rxn_str,file=sys.stderr)
-        print(id)
+        print(sample_id)
         traceback.print_exc()
         continue
-    #"""
     AllChem.RemoveMappingNumbersFromReactions(rxn)#去原子的号码
     output_smiles = AllChem.ReactionToSmiles(rxn)
     reactant,product_reagent=output_smiles.strip().split(">",1)
-    print(product_reagent,file=fp_train_sources)
-    print(reactant, file=fp_train_targets)
+    out_dict={
+          "inputs": "".join(list(product_reagent)),
+          "targets": "".join(list(reactant)),
+          "id":sample_id,
+        }
+    print(json.dumps(out_dict),file=fp_train_sample)
 
-
+#id,reagents>production
+fp_test.readline()
+for line in fp_test:
+    if " |" in line:
+        tmp_fields = line.strip().split(" |")
+        line = tmp_fields[0]
+    fields = line.strip().split(",")
+    sample_id = fields[0]
+    rxn_str = fields[1]
+    rxn_str="O>"+rxn_str
+    try:
+        rxn = AllChem.ReactionFromSmarts(rxn_str, useSmiles=True)
+    except:
+        print(rxn_str, file=sys.stderr)
+        print(sample_id)
+        traceback.print_exc()
+        continue
+    AllChem.RemoveMappingNumbersFromReactions(rxn)  # 去原子的号码
+    output_smiles = AllChem.ReactionToSmiles(rxn)
+    _, product_reagent = output_smiles.strip().split(">", 1)
+    print("".join(list(product_reagent)), file=fp_test_sample)
+    print(sample_id,file=fp_test_id)
     """
     reactant_list = []
     agent_list = []
@@ -130,4 +153,4 @@ for  line in fp_train :
             vocab[product_token] = 1
     """
 
-print("\n".join(list(vocab.keys())),file=fp_vocab)
+#print("\n".join(list(vocab.keys())),file=fp_vocab)
