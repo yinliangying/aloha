@@ -22,7 +22,7 @@ exit 0
 
 
 
-'
+
 t2t-trainer \
   --t2t_usr_dir=$USR_DIR \
   --data_dir=$DATA_DIR \
@@ -32,7 +32,7 @@ t2t-trainer \
   --output_dir=$TRAIN_DIR
 
 exit 9
-'
+
 
 t2t-decoder \
     --t2t_usr_dir=$USR_DIR  \

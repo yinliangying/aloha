@@ -16,9 +16,9 @@ def cano(smiles): # canonicalize smiles by MolToSmiles function
     return Chem.MolToSmiles(Chem.MolFromSmiles(smiles)) if (smiles != '') else ''
 
 
-fp_train=open("train.txt")
+fp_train=open("train_all.txt")
 fp_train_sample=open("train_sample","w")
-fp_test=open("test.txt")
+fp_test=open("test_all.txt")
 fp_test_sample=open("test_sample","w")
 fp_test_id=open("test_id","w")
 #fp_vocab=open("vocab","w")
@@ -28,6 +28,7 @@ fp_test_id=open("test_id","w")
 #id,reactants>reagents>production
 fp_train.readline()
 for line in fp_train :
+    line=line.replace('"','')
     if " |" in line:
         tmp_fields=line.strip().split(" |")
         line=tmp_fields[0]
@@ -38,8 +39,9 @@ for line in fp_train :
         rxn = AllChem.ReactionFromSmarts(rxn_str, useSmiles=True)
     except:
         print(rxn_str,file=sys.stderr)
-        print(sample_id)
+        print(sample_id,file=sys.stderr)
         traceback.print_exc()
+        print("\n",file=sys.stderr)
         continue
     AllChem.RemoveMappingNumbersFromReactions(rxn)#去原子的号码
     output_smiles = AllChem.ReactionToSmiles(rxn)
@@ -54,6 +56,7 @@ for line in fp_train :
 #id,reagents>production
 fp_test.readline()
 for line in fp_test:
+    line = line.replace('"', '')
     if " |" in line:
         tmp_fields = line.strip().split(" |")
         line = tmp_fields[0]
