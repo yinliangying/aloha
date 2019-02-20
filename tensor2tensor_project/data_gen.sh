@@ -34,6 +34,7 @@ t2t-trainer \
 exit 9
 '
 
+
 t2t-decoder \
     --t2t_usr_dir=$USR_DIR  \
     --problem=$PROBLEM \
