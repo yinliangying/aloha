@@ -2,9 +2,10 @@
 
 import sys
 import json
-fp_test_id=open("test_id")
-fp_test_predict=open("test_sample.transformer.transformer_tiny.my_reaction.beam4.alpha0.6.decodes")
-fp_result=open("result.json","w")
+
+fp_test_predict=open(sys.argv[1])
+fp_test_id=open(sys.argv[2])
+fp_result=open(sys.argv[3],"w")
 
 out_dict={}
 i=0
