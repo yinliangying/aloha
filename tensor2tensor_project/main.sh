@@ -3,14 +3,15 @@ __script_dir=$(cd `dirname $0`; pwd)
 cd ${__script_dir}
 USR_DIR=${__script_dir}/problem_model/
 PROBLEM=my_reaction
-DATA_DIR=${__script_dir}/t2t_data/
 TMP_DIR=${__script_dir}/tmp/
 
 
-
+#DATA_DIR=${__script_dir}/t2t_data/
+DATA_DIR=${__script_dir}/t2t_data_token/
 MODEL=transformer
-TRAIN_DIR=${__script_dir}/train_tiny/  #transformer_tiny
-HPARAMS_SET=transformer_tiny
+
+#TRAIN_DIR=${__script_dir}/train_tiny/  #transformer_tiny
+#HPARAMS_SET=transformer_tiny
 
 #TRAIN_DIR=${__script_dir}/train_tiny_dingzhi/
 #HPARAMS_SET=transformer_tiny
@@ -22,22 +23,26 @@ HPARAMS_SET=transformer_tiny
 #transformer_base_single_gpu
 
 
+TRAIN_DIR=${__script_dir}/train_tiny_token/  #transformer_tiny
+HPARAMS_SET=transformer_tiny
+
+
 mkdir -p $DATA_DIR $TMP_DIR $TRAIN_DIR
 
 
 #1. remove atom mapping number and create train and test file
 #python 1_remove_mapping.py ../data   #don't change the arg ../data because of  the need of  the arg --problem below
 
-'
+#'
 #2. create t2t  data form
-t2t-datagen \
-  --t2t_usr_dir=$USR_DIR \
-  --data_dir=$DATA_DIR \
-  --tmp_dir=$TMP_DIR \
-  --problem=$PROBLEM
+#t2t-datagen \
+#  --t2t_usr_dir=$USR_DIR \
+#  --data_dir=$DATA_DIR \
+#  --tmp_dir=$TMP_DIR \
+#  --problem=$PROBLEM
 
-exit 0
-'
+#exit 0
+#'
 
 t2t-trainer \
   --t2t_usr_dir=$USR_DIR \
@@ -51,8 +56,9 @@ t2t-trainer \
 
 exit 0
 
+
 DECODE_TO_FILE=$TRAIN_DIR/a.txt
-DECODE_FROM_FILE=../data/test_sample
+DECODE_FROM_FILE=../data/tmp
 
 t2t-decoder \
     --t2t_usr_dir=$USR_DIR  \
@@ -64,6 +70,8 @@ t2t-decoder \
     --decode_to_file=$DECODE_TO_FILE \
     --hparams_set=$HPARAMS_SET \
     --decode_hparams='return_beams=True,beam_size=10' # return topN(N=beam_size) result split by \t for each sample
+
+exit 0
 
 
 RESULT_FILE=../data/result.json

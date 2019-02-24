@@ -23,8 +23,10 @@ def main():
     fp_train_sample = open(data_path+"/train_sample", "w")
     fp_test_sample = open(data_path+"/test_sample", "w")
     fp_test_id = open(data_path+"/test_id", "w")
-    # fp_vocab=open("vocab","w")
-    # vocab= {}
+    fp_vocab=open(data_path +"/vocab","w")
+    vocab= {}
+
+    token_regex = "(\[[^\]]+]|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|= |  # |-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%[0-9]{2}|[0-9])"
 
     # id,reactants>reagents>production
     fp_train.readline()
@@ -46,12 +48,42 @@ def main():
             continue
         AllChem.RemoveMappingNumbersFromReactions(rxn)  # 去原子的号码
         output_smiles = AllChem.ReactionToSmiles(rxn)
+
         reactant, product_reagent = output_smiles.strip().split(">", 1)
+
+        #vocab
+        product_reagent_list=[]
+        token_list=re.split(token_regex, product_reagent)
+        for token in token_list:
+            token=token.strip()
+            if token=='':
+                continue
+            if token not in vocab:
+                vocab[token]=0
+            vocab[token]+=1
+            product_reagent_list.append(token)
+        reactant_list=[]
+        token_list=re.split(token_regex, reactant)
+        for token in token_list:
+            token=token.strip()
+            if token=='':
+                continue
+            if token not in vocab:
+                vocab[token]=0
+            vocab[token]+=1
+            reactant_list.append(token)
+        out_dict = {
+            "inputs": " ".join(list(product_reagent_list)),
+            "targets": " ".join(list(reactant_list)),
+            "id": sample_id,}
+
+
+        """
         out_dict = {
             "inputs": "".join(list(product_reagent)),
             "targets": "".join(list(reactant)),
             "id": sample_id,
-        }
+        }"""
         print(json.dumps(out_dict), file=fp_train_sample)
 
     # id,reagents>production
@@ -74,10 +106,26 @@ def main():
             continue
         AllChem.RemoveMappingNumbersFromReactions(rxn)  # 去原子的号码
         output_smiles = AllChem.ReactionToSmiles(rxn)
+
         _, product_reagent = output_smiles.strip().split(">", 1)
-        print("".join(list(product_reagent)), file=fp_test_sample)
+        #vocab
+        product_reagent_list=[]
+        token_list=re.split(token_regex, product_reagent)
+        for token in token_list:
+            token=token.strip()
+            if token=='':
+                continue
+            if token not in vocab:
+                vocab[token]=0
+            vocab[token]+=1
+            product_reagent_list.append(token)
+        print(" ".join(list(product_reagent_list)), file=fp_test_sample)
+
+
+        #print("".join(list(product_reagent)), file=fp_test_sample)
         print(sample_id, file=fp_test_id)
 
+    print("\n".join(list(vocab.keys())), file=fp_vocab)
 
 if __name__=="__main__":
     main()
@@ -163,4 +211,3 @@ if __name__=="__main__":
                 print("sdfsf")
             vocab[product_token] = 1
     """
-    # print("\n".join(list(vocab.keys())),file=fp_vocab)

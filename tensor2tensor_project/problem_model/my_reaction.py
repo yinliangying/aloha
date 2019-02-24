@@ -15,11 +15,12 @@ class MyReaction(text_problems.Text2TextProblem):
 
   @property
   def vocab_type(self):
-      return text_problems.VocabType.CHARACTER
+      #return text_problems.VocabType.CHARACTER
+      return text_problems.VocabType.TOKEN
 
   @property
   def approx_vocab_size(self):
-    return 2**8  # ~256
+    return 2**9
 
   @property
   def is_generate_per_split(self):
